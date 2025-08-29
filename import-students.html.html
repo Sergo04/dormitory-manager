@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Импорт студентов - Диспетчер Общежития</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .instructions {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #3498db;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: monospace;
+            resize: vertical;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        .results {
+            margin-top: 2rem;
+        }
+        .student-card {
+            background: #f8f9fa;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            border-left: 4px solid #27ae60;
+        }
+        .student-card.error {
+            border-left-color: #e74c3c;
+        }
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📥 Массовый импорт студентов</h1>
+
+        <div class="instructions">
+            <p><strong>Как использовать:</strong></p>
+            <ol>
+                <li>Вставьте ваш список студентов в поле ниже</li>
+                <li>Формат: <code>Комната[Табуляция]ФИО</code> (как у вас в примере)</li>
+                <li>Нажмите "Анализировать список"</li>
+                <li>Проверьте результат и нажмите "Добавить всех студентов"</li>
+            </ol>
+        </div>
+
+        <div class="form-group">
+            <label>Вставьте ваш список студентов:</label>
+            <textarea id="studentList" placeholder="201А	Кудрявцева Е В25
+201А	Зайцева В П14
+201Б 	Печенцова С
+... и так далее"></textarea>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="parseList()">🔍 Анализировать список</button>
+            <button class="btn btn-secondary" onclick="clearList()">❌ Очистить</button>
+        </div>
+
+        <div id="results" class="results" style="display: none;">
+            <h3>Результат анализа:</h3>
+            <div id="parsedResults"></div>
+            <button class="btn btn-primary" onclick="addAllStudents()" style="margin-top: 1rem;">✅ Добавить всех студентов</button>
+        </div>
+    </div>
+
+    <script>
+        // Функция для анализа списка
+        function parseList() {
+            const rawText = document.getElementById('studentList').value;
+            if (!rawText.trim()) {
+                alert('Список пуст!');
+                return;
+            }
+
+            const lines = rawText.split('\n');
+            let resultsHtml = '';
+            let students = [];
+
+            lines.forEach((line, index) => {
+                if (!line.trim()) return; // Пропускаем пустые строки
+
+                // Пытаемся разделить строку по табуляции или множественным пробелам
+                const parts = line.split(/\t|\s{2,}/).filter(part => part.trim() !== '');
+                
+                if (parts.length >= 2) {
+                    const room = parts[0].trim();
+                    const fullName = parts[1].trim();
+                    
+                    // Определяем этаж по первой цифре номера комнаты
+                    const floorMatch = room.match(/\d/);
+                    const floor = floorMatch ? floorMatch[0] + ' этаж' : 'Не определен';
+                    
+                    students.push({
+                        room: room,
+                        fullName: fullName,
+                        floor: floor,
+                        group: 'Нужно уточнить', // Можно будет редактировать после импорта
+                        course: 1 // По умолчанию
+                    });
+
+                    resultsHtml += `
+                        <div class="student-card">
+                            <strong>${fullName}</strong><br>
+                            Комната: ${room} | Этаж: ${floor}
+                        </div>
+                    `;
+                } else {
+                    resultsHtml += `
+                        <div class="student-card error">
+                            <strong>Ошибка в строке ${index + 1}:</strong> Неверный формат<br>
+                            <code>${line}</code>
+                        </div>
+                    `;
+                }
+            });
+
+            // Сохраняем студентов для дальнейшего использования
+            window.parsedStudents = students;
+
+            // Показываем результаты
+            document.getElementById('parsedResults').innerHTML = resultsHtml;
+            document.getElementById('results').style.display = 'block';
+
+            if (students.length > 0) {
+                alert(`Успешно распознано: ${students.length} студентов!`);
+            }
+        }
+
+        // Функция для добавления всех студентов
+        function addAllStudents() {
+            if (!window.parsedStudents || window.parsedStudents.length === 0) {
+                alert('Нет студентов для добавления!');
+                return;
+            }
+
+            // Здесь будет отправка на сервер
+            console.log('Добавляем студентов:', window.parsedStudents);
+            
+            alert(`Готово! ${window.parsedStudents.length} студентов добавлены в систему.`);
+            
+            // Очищаем форму
+            document.getElementById('studentList').value = '';
+            document.getElementById('results').style.display = 'none';
+            window.parsedStudents = [];
+        }
+
+        function clearList() {
+            document.getElementById('studentList').value = '';
+            document.getElementById('results').style.display = 'none';
+        }
+
+        // Автоматически вставляем ваш список при загрузке страницы
+        window.onload = function() {
+            const exampleList = `201А\tКудрявцева Е В25
+201А\tЗайцева В П14
+201А\tБадикова Р К14 
+201Б\tПеченцова С
+201Б\tЛючинша
+201Б\tБичинова Л
+201Б\tТенгерекова
+202А\tБергер Ю
+202А\tЕвстратова В К13 
+202Б\tСыренко А К12
+202Б\tТетушкина А К12
+202Б\tКиселева С К12
+202Б\tПерепелицина А К12
+203А1\tКривощекова Т Т313
+203А1\tБектирова Т314 
+203А2\tКоспокова Э
+203А2\tШубина 
+203Б\tМамашева
+203Б\tМалькова
+203Б\tГолова 
+211А\tНедобежкина 
+211А\tТолстова 
+211Б\tОдинамамадова
+211Б\tДонгак 
+211Б\tЧеснокова
+215А\tДилеков 
+215А\tДжумажанов 
+215А\tКокпашев 
+215Б\tМахомета
+215Б\tУлагашев
+215Б\tКречетов
+215Б\tСамиев 
+220А\tКарпов
+220А\tКириллов 
+220Б\tЛошаков 
+220Б\tСаблаков 
+220Б\tИркитов
+220Б\tСамаев
+301А\tСырых !!!
+301А\tШульгин 
+301Б\tМатин
+301Б\tКукпенеков
+301Б\tБедюров
+302А\tАльчин
+302А\tБулбанов
+302А\tАльчин
+302Б\tБахтушкин
+302Б\tЮнхунов 
+302Б\tФилимонов !!!
+303А1\tСергеева (кош)
+303А1\tАльдюхова !
+303Б\tБерезикова 
+303Б\tПопошева
+303Б\tАнтонова 
+303Б\tЗабельникова 
+304Б\tЕремеев 
+304Б\tСаксаев !!!
+304А\tКорнилов
+304А\tПлетнев
+304А\tКульзенов
+305А\tСырых
+305Б\tСкороходов !!!
+305Б\tМаксимов !!!
+305Б\tУгничев !!!
+305Б\tБабаев !!!
+307А\tМажо 
+307А\tОдонова 
+307Б\tГумарова 
+307Б\tДоржу
+307Б\tБитуганова 
+307Б\tЕмильянова 
+308А\tДмитриева 
+308А\tПоткина 
+308А\tВьюненко 
+308Б\tТокмашова
+308Б\tСавченко
+308Б\tСоловьева
+308Б\tАдыкаева 
+309А\tПушкина
+309А\tСергеевна 
+309Б\tРоманова !!!
+309Б\tМагомодова !!!
+309Б\tАкулова !!!
+309Б\tАфанасьева
+310А\tМедведева 
+310А\tКарасова 
+310Б\tЧерепанова 
+310Б\tКондыкова
+310Б\tЯкимченко 
+310Б\tШадрина 
+311А\tАкчинов
+311А\tЯилгаков
+311Б\tЧигжит
+311Б\tОчуртов !!!
+311Б\tКангинов 
+311Б\tЮнхунов Э !
+312А\tАрбаев
+312А\tЮнхунов И
+312Б\tКебеков
+312Б\tЕнчинов
+312Б\tЧучин
+312Б\tИркитов
+313А1\tКрачнакова
+313А2\tНовикова
+313Б\tАнчина
+313Б\tКыдатова
+313Б\tКазакова
+313Б\tДелтокова
+314А\tФедоров
+314А\tСубботин
+314А\tСафронов
+314Б\tЯжанкин
+314Б\tТадышев
+314Б\tБелеков
+314Б\tРешетов
+315А\tМайманов
+315А\tУйгулуков
+315А\tИргит
+315Б\tСегерткышев
+315Б\tЧирков
+315Б\tЛобанов
+318А\tТоптыгин
+318А\tЛевин
+318А\tПан
+318Б\tМиркулеев !!!?
+318Б\tВахидов
+318Б\tКузьмин
+318Б\tМирханов
+320А\tЖукова
+320А\tСемендеева
+320Б\tШустинская
+320Б\tРожкова
+320Б\tКозлова
+320Б\tСотникова
+502Б\tСатучинов
+513А1\tКанысова
+513А1\tМалчинова
+513А2\tБочкарева
+513А2\tГлушкова
+513Б\tБологова
+513Б\tКураганова`;
+
+            document.getElementById('studentList').value = exampleList;
+        };
+    </script>
+</body>
+</html>

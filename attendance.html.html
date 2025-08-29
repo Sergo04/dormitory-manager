@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вечерняя отметка - Диспетчер Общежития</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .date-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+            color: #7f8c8d;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        select, input {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        .legend {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.5rem;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .status-badge {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+        .status-present { background: #27ae60; }  /* ✔ */
+        .status-statement { background: #3498db; } /* З */
+        .status-poll { background: #f39c12; }    /* О */
+        .status-absent { background: #e74c3c; }  /* Х */
+        .status-hospital { background: #9b59b6; } /* Б */
+        .status-none { background: #95a5a6; }    /* Не отмечен */
+        
+        .attendance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .student-card {
+            background: white;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s;
+        }
+        .student-card.present { border-color: #27ae60; background: #f0fff4; }
+        .student-card.statement { border-color: #3498db; background: #ebf5fb; }
+        .student-card.poll { border-color: #f39c12; background: #fef9e7; }
+        .student-card.absent { border-color: #e74c3c; background: #fff0f0; }
+        .student-card.hospital { border-color: #9b59b6; background: #f8f0ff; }
+        
+        .student-info {
+            flex-grow: 1;
+        }
+        .student-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+        .student-details {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        .status-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .status-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+        .status-btn:hover {
+            transform: scale(1.1);
+        }
+        .status-btn.active {
+            transform: scale(1.15);
+            box-shadow: 0 0 0 2px currentColor;
+        }
+        .stats {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1rem;
+            text-align: center;
+        }
+        .stat-item {
+            padding: 0.5rem;
+        }
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .stat-present { color: #27ae60; }
+        .stat-statement { color: #3498db; }
+        .stat-poll { color: #f39c12; }
+        .stat-absent { color: #e74c3c; }
+        .stat-hospital { color: #9b59b6; }
+        .stat-total { color: #2c3e50; }
+        
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-primary {
+            background-color: #27ae60;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #219653;
+        }
+        .btn-secondary {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #2980b9;
+        }
+        .btn-reset {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .btn-reset:hover {
+            background-color: #c0392b;
+        }
+        .floor-title {
+            text-align: center;
+            margin: 2rem 0 1rem 0;
+            padding: 1rem;
+            background: #2c3e50;
+            color: white;
+            border-radius: 6px;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ Вечерняя отметка</h1>
+        
+        <div class="date-header">
+            Дата: <span id="currentDate"></span>
+        </div>
+
+        <div class="controls">
+            <div class="form-group">
+                <label>Выберите этаж</label>
+                <select id="floorSelect" onchange="loadFloorStudents()">
+                    <option value="">Все этажи</option>
+                    <option value="2">2 этаж</option>
+                    <option value="3">3 этаж</option>
+                    <option value="5">5 этаж</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Выберите секцию</label>
+                <select id="sectionSelect" onchange="loadFloorStudents()">
+                    <option value="">Все секции</option>
+                    <option value="1">Секция 1</option>
+                    <option value="2">Секция 2</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Быстрый поиск</label>
+                <input type="text" id="searchInput" placeholder="Поиск по имени..." oninput="filterStudents()">
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="status-badge status-present">✔</div>
+                <span>На месте, готов ко сну</span>
+            </div>
+            <div class="legend-item">
+                <div class="status-badge status-statement">З</div>
+                <span>Отсутствует по заявлению</span>
+            </div>
+            <div class="legend-item">
+                <div class="status-badge status-poll">О</div>
+                <span>На опросе</span>
+            </div>
+            <div class="legend-item">
+                <div class="status-badge status-absent">Х</div>
+                <span>Отсутствует, причина неизвестна</span>
+            </div>
+            <div class="legend-item">
+                <div class="status-badge status-hospital">Б</div>
+                <span>Больничный, болеет в больнице</span>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number stat-total" id="totalStudents">0</div>
+                <div>Всего</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number stat-present" id="presentStudents">0</div>
+                <div>✔ На месте</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number stat-statement" id="statementStudents">0</div>
+                <div>З Заявление</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number stat-poll" id="pollStudents">0</div>
+                <div>О Опрос</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number stat-absent" id="absentStudents">0</div>
+                <div>Х Отсутствует</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number stat-hospital" id="hospitalStudents">0</div>
+                <div>Б Больничный</div>
+            </div>
+        </div>
+
+        <div id="attendanceContainer">
+            <!-- Сюда будут загружаться студенты выбранного этажа -->
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="saveAttendance()">
+                💾 Сохранить отметку
+            </button>
+            <button class="btn btn-secondary" onclick="markAllPresent()">
+                ✅ Все на месте
+            </button>
+            <button class="btn btn-reset" onclick="resetAttendance()">
+                🔄 Сбросить этаж
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Константы статусов
+        const STATUS = {
+            NONE: 'none',
+            PRESENT: 'present',      // ✔
+            STATEMENT: 'statement',  // З
+            POLL: 'poll',            // О
+            ABSENT: 'absent',        // Х
+            HOSPITAL: 'hospital'     // Б
+        };
+
+        const STATUS_SYMBOLS = {
+            [STATUS.PRESENT]: '✔',
+            [STATUS.STATEMENT]: 'З',
+            [STATUS.POLL]: 'О',
+            [STATUS.ABSENT]: 'Х',
+            [STATUS.HOSPITAL]: 'Б',
+            [STATUS.NONE]: '?'
+        };
+
+        const STATUS_NAMES = {
+            [STATUS.PRESENT]: 'На месте, готов ко сну',
+            [STATUS.STATEMENT]: 'Отсутствует по заявлению',
+            [STATUS.POLL]: 'На опросе',
+            [STATUS.ABSENT]: 'Отсутствует, причина неизвестна',
+            [STATUS.HOSPITAL]: 'Больничный, болеет в больнице',
+            [STATUS.NONE]: 'Не отмечен'
+        };
+
+        // Данные студентов
+        const allStudents = [
+            {id: 1, fullName: "Кудрявцева Е В25", room: "201А", floor: "2", group: "В25", status: STATUS.NONE},
+            {id: 2, fullName: "Зайцева В П14", room: "201А", floor: "2", group: "П14", status: STATUS.NONE},
+            {id: 3, fullName: "Бадикова Р К14", room: "201А", floor: "2", group: "К14", status: STATUS.NONE},
+            {id: 4, fullName: "Печенцова С", room: "201Б", floor: "2", group: "Не указана", status: STATUS.NONE},
+            {id: 5, fullName: "Лючинша", room: "201Б", floor: "2", group: "Не указана", status: STATUS.NONE},
+            // ... продолжаем список для всех студентов
+        ];
+
+        let currentStudents = [];
+        const attendanceData = {};
+
+        // Инициализация страницы
+        function initPage() {
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('ru-RU', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            
+            // Восстанавливаем сохраненные данные
+            const savedData = localStorage.getItem('attendanceData');
+            if (savedData) {
+                Object.assign(attendanceData, JSON.parse(savedData));
+            }
+            
+            loadFloorStudents();
+            updateStats();
+        }
+
+        // Загрузка студентов выбранного этажа
+        function loadFloorStudents() {
+            const floor = document.getElementById('floorSelect').value;
+            const section = document.getElementById('sectionSelect').value;
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+
+            currentStudents = allStudents.filter(student => {
+                const matchesFloor = !floor || student.floor === floor;
+                const matchesSection = !section || true;
+                const matchesSearch = !searchText || student.fullName.toLowerCase().includes(searchText);
+                
+                return matchesFloor && matchesSection && matchesSearch;
+            });
+
+            renderStudents();
+            updateStats();
+        }
+
+        // Фильтрация студентов
+        function filterStudents() {
+            loadFloorStudents();
+        }
+
+        // Отображение студентов
+        function renderStudents() {
+            const container = document.getElementById('attendanceContainer');
+            container.innerHTML = '';
+
+            if (currentStudents.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #7f8c8d;">Студенты не найдены</div>';
+                return;
+            }
+
+            // Группировка по этажам
+            const groupedByFloor = {};
+            currentStudents.forEach(student => {
+                if (!groupedByFloor[student.floor]) {
+                    groupedByFloor[student.floor] = [];
+                }
+                groupedByFloor[student.floor].push(student);
+            });
+
+            // Сортировка этажей
+            const floors = Object.keys(groupedByFloor).sort();
+
+            floors.forEach(floor => {
+                const floorTitle = document.createElement('div');
+                floorTitle.className = 'floor-title';
+                floorTitle.textContent = `Этаж ${floor}`;
+                container.appendChild(floorTitle);
+
+                const grid = document.createElement('div');
+                grid.className = 'attendance-grid';
+
+                groupedByFloor[floor].forEach(student => {
+                    const status = attendanceData[student.id] || STATUS.NONE;
+                    const card = document.createElement('div');
+                    card.className = `student-card ${status}`;
+                    card.innerHTML = `
+                        <div class="student-info">
+                            <div class="student-name">${student.fullName}</div>
+                            <div class="student-details">Комната: ${student.room} | Группа: ${student.group}</div>
+                            <div class="student-status" style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">
+                                ${STATUS_NAMES[status]}
+                            </div>
+                        </div>
+                        <div class="status-buttons">
+                            <button class="status-btn status-present ${status === STATUS.PRESENT ? 'active' : ''}" 
+                                onclick="setStatus(${student.id}, '${STATUS.PRESENT}')" title="На месте, готов ко сну">✔</button>
+                            <button class="status-btn status-statement ${status === STATUS.STATEMENT ? 'active' : ''}" 
+                                onclick="setStatus(${student.id}, '${STATUS.STATEMENT}')" title="Отсутствует по заявлению">З</button>
+                            <button class="status-btn status-poll ${status === STATUS.POLL ? 'active' : ''}" 
+                                onclick="setStatus(${student.id}, '${STATUS.POLL}')" title="На опросе">О</button>
+                            <button class="status-btn status-absent ${status === STATUS.ABSENT ? 'active' : ''}" 
+                                onclick="setStatus(${student.id}, '${STATUS.ABSENT}')" title="Отсутствует, причина неизвестна">Х</button>
+                            <button class="status-btn status-hospital ${status === STATUS.HOSPITAL ? 'active' : ''}" 
+                                onclick="setStatus(${student.id}, '${STATUS.HOSPITAL}')" title="Больничный, болеет в больнице">Б</button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                container.appendChild(grid);
+            });
+        }
+
+        // Установка статуса
+        function setStatus(studentId, status) {
+            attendanceData[studentId] = status;
+            localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+            updateStats();
+            renderStudents();
+        }
+
+        // Отметить всех присутствующими
+        function markAllPresent() {
+            if (confirm('Отметить всех студентов на текущем этаже как "На месте"?')) {
+                currentStudents.forEach(student => {
+                    attendanceData[student.id] = STATUS.PRESENT;
+                });
+                localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+                renderStudents();
+                updateStats();
+            }
+        }
+
+        // Сброс отметок
+        function resetAttendance() {
+            if (confirm('Сбросить все отметки для текущего этажа?')) {
+                currentStudents.forEach(student => {
+                    attendanceData[student.id] = STATUS.NONE;
+                });
+                localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+                renderStudents();
+                updateStats();
+            }
+        }
+
+        // Обновление статистики
+        function updateStats() {
+            const stats = {
+                [STATUS.PRESENT]: 0,
+                [STATUS.STATEMENT]: 0,
+                [STATUS.POLL]: 0,
+                [STATUS.ABSENT]: 0,
+                [STATUS.HOSPITAL]: 0,
+                [STATUS.NONE]: 0
+            };
+
+            currentStudents.forEach(student => {
+                const status = attendanceData[student.id] || STATUS.NONE;
+                stats[status]++;
+            });
+
+            document.getElementById('totalStudents').textContent = currentStudents.length;
+            document.getElementById('presentStudents').textContent = stats[STATUS.PRESENT];
+            document.getElementById('statementStudents').textContent = stats[STATUS.STATEMENT];
+            document.getElementById('pollStudents').textContent = stats[STATUS.POLL];
+            document.getElementById('absentStudents').textContent = stats[STATUS.ABSENT];
+            document.getElementById('hospitalStudents').textContent = stats[STATUS.HOSPITAL];
+        }
+
+        // Сохранение отметки
+        function saveAttendance() {
+            const presentCount = Object.values(attendanceData).filter(status => 
+                status === STATUS.PRESENT || status === STATUS.POLL
+            ).length;
+            
+            const absentCount = Object.values(attendanceData).filter(status => 
+                status === STATUS.ABSENT
+            ).length;
+
+            // Здесь будет отправка данных на сервер
+            const today = new Date().toLocaleDateString('ru-RU');
+            alert(`✅ Отметка сохранена!\nДата: ${today}\nПрисутствуют: ${presentCount}\nОтсутствуют: ${absentCount}`);
+            
+            // Автопереход на следующий этаж
+            const currentFloor = document.getElementById('floorSelect').value;
+            if (currentFloor) {
+                const nextFloor = parseInt(currentFloor) + 1;
+                if (nextFloor <= 5) {
+                    document.getElementById('floorSelect').value = nextFloor;
+                    loadFloorStudents();
+                }
+            }
+        }
+
+        // Запуск при загрузке страницы
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

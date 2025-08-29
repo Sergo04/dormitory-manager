@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заявления студентов - Диспетчер Общежития</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #ddd;
+        }
+        .tab {
+            padding: 1rem 2rem;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            background: #2c3e50;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .statement-form {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        input, select, textarea {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .btn-primary {
+            background-color: #27ae60;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #219653;
+        }
+        .btn-secondary {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-warning {
+            background-color: #f39c12;
+            color: white;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .statement-card {
+            background: white;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .statement-card.new { border-left-color: #3498db; }
+        .statement-card.approved { border-left-color: #27ae60; }
+        .statement-card.rejected { border-left-color: #e74c3c; }
+        .statement-card.archived { border-left-color: #95a5a6; }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+        .status-new { background: #3498db; }
+        .status-approved { background: #27ae60; }
+        .status-rejected { background: #e74c3c; }
+        .status-archived { background: #95a5a6; }
+        
+        .student-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        .student-detail {
+            display: flex;
+            flex-direction: column;
+        }
+        .detail-label {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+        .detail-value {
+            font-weight: bold;
+        }
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .statement-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .type-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .type-card:hover {
+            transform: translateY(-2px);
+            background: #e8f4fc;
+        }
+        .type-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .notification-badge {
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+        .calendar-day {
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .calendar-day.has-statement {
+            background: #e8f4fc;
+            border-color: #3498db;
+        }
+        .calendar-day.selected {
+            background: #3498db;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Заявления студентов</h1>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('new')">➕ Новое заявление</button>
+            <button class="tab" onclick="showTab('list')">📋 Все заявления</button>
+            <button class="tab" onclick="showTab('calendar')">📅 Календарь</button>
+            <button class="tab" onclick="showTab('stats')">📊 Статистика</button>
+        </div>
+
+        <!-- Вкладка нового заявления -->
+        <div class="tab-content active" id="tab-new">
+            <div class="statement-type-grid">
+                <div class="type-card" onclick="selectStatementType('absence')">
+                    <div class="type-icon">🚪</div>
+                    <h3>Отсутствие в общежитии</h3>
+                    <p>Заявление на временное отсутствие</p>
+                </div>
+                <div class="type-card" onclick="selectStatementType('guests')">
+                    <div class="type-icon">👥</div>
+                    <h3>Прием гостей</h3>
+                    <p>Разрешение на поселение гостей</p>
+                </div>
+                <div class="type-card" onclick="selectStatementType('repair')">
+                    <div class="type-icon">🔧</div>
+                    <h3>Ремонт</h3>
+                    <p>Заявка на ремонтные работы</p>
+                </div>
+                <div class="type-card" onclick="selectStatementType('other')">
+                    <div class="type-icon">📄</div>
+                    <h3>Другое</h3>
+                    <p>Иные типы заявлений</p>
+                </div>
+            </div>
+
+            <div class="statement-form" id="statementForm" style="display: none;">
+                <h3 id="formTitle">Новое заявление</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Студент *</label>
+                        <input type="text" id="studentName" readonly value="Кудрявцева Е В25 (201А)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Тип заявления *</label>
+                        <input type="text" id="statementType" readonly>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Дата начала *</label>
+                        <input type="date" id="startDate">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Дата окончания *</label>
+                        <input type="date" id="endDate">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Причина/Описание *</label>
+                    <textarea id="statementReason" placeholder="Подробно опишите причину заявления..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Контактный телефон</label>
+                    <input type="tel" id="contactPhone" placeholder="+7 (900) 123-45-67">
+                </div>
+
+                <div class="form-group">
+                    <label>Экстренный контакт</label>
+                    <input type="text" id="emergencyContact" placeholder="ФИО и телефон родственника">
+                </div>
+
+                <button class="btn btn-primary" onclick="submitStatement()">
+                    📨 Отправить заявление
+                </button>
+            </div>
+        </div>
+
+        <!-- Вкладка списка заявлений -->
+        <div class="tab-content" id="tab-list">
+            <div class="filters">
+                <div class="form-group">
+                    <label>Статус</label>
+                    <select id="statusFilter" onchange="filterStatements()">
+                        <option value="">Все статусы</option>
+                        <option value="new">Новые</option>
+                        <option value="approved">Одобренные</option>
+                        <option value="rejected">Отклоненные</option>
+                        <option value="archived">В архиве</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Тип заявления</label>
+                    <select id="typeFilter" onchange="filterStatements()">
+                        <option value="">Все типы</option>
+                        <option value="absence">Отсутствие</option>
+                        <option value="guests">Гости</option>
+                        <option value="repair">Ремонт</option>
+                        <option value="other">Другое</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Этаж</label>
+                    <select id="floorFilter" onchange="filterStatements()">
+                        <option value="">Все этажи</option>
+                        <option value="2">2 этаж</option>
+                        <option value="3">3 этаж</option>
+                        <option value="5">5 этаж</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Период</label>
+                    <input type="date" id="dateFilter" onchange="filterStatements()">
+                </div>
+            </div>
+
+            <div id="statementsList">
+                <!-- Сюда будут загружаться заявления -->
+            </div>
+        </div>
+
+        <!-- Вкладка календаря -->
+        <div class="tab-content" id="tab-calendar">
+            <h3>Календарь заявлений на январь 2024</h3>
+            <div class="calendar" id="calendarGrid">
+                <!-- Календарь будет сгенерирован автоматически -->
+            </div>
+            
+            <div id="dayStatements" style="margin-top: 2rem;">
+                <!-- Заявления выбранного дня -->
+            </div>
+        </div>
+
+        <!-- Вкладка статистики -->
+        <div class="tab-content" id="tab-stats">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalStatements">0</div>
+                    <div>Всего заявлений</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="pendingStatements">0</div>
+                    <div>На рассмотрении</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="approvalRate">0%</div>
+                    <div>Уровень одобрения</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="avgProcessing">0ч</div>
+                    <div>Среднее время обработки</div>
+                </div>
+            </div>
+
+            <h3>Распределение по типам заявлений</h3>
+            <div id="statementsChart">
+                <div style="background: #f8f9fa; padding: 2rem; text-align: center; border-radius: 8px;">
+                    📊 График заявлений по типам (будет реализован в полной версии)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Данные для демонстрации
+        const statementsData = [
+            {
+                id: 1,
+                student: "Кудрявцева Е В25",
+                room: "201А",
+                floor: "2",
+                type: "absence",
+                typeText: "Отсутствие в общежитии",
+                startDate: "2024-01-20",
+                endDate: "2024-01-22",
+                reason: "Поездка домой к родителям",
+                status: "approved",
+                statusText: "Одобрено",
+                submitted: "2024-01-15 10:30",
+                contact: "+7 (900) 123-45-67",
+                emergency: "Иванова М.И. +7 (913) 456-78-90"
+            },
+            {
+                id: 2,
+                student: "Петрова В С",
+                room: "305Б",
+                floor: "3",
+                type: "guests",
+                typeText: "Прием гостей",
+                startDate: "2024-01-25",
+                endDate: "2024-01-27",
+                reason: "Поселение родителей",
+                status: "new",
+                statusText: "На рассмотрении",
+                submitted: "2024-01-18 14:20",
+                contact: "+7 (900) 987-65-43",
+                emergency: "Петров С.В. +7 (913) 123-45-67"
+            }
+        ];
+
+        let currentStatements = [];
+        let selectedStatementType = '';
+
+        // Показать вкладку
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`.tab:nth-child(${tabName === 'new' ? 1 : tabName === 'list' ? 2 : tabName === 'calendar' ? 3 : 4})`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            if (tabName === 'list') {
+                loadStatements();
+            } else if (tabName === 'calendar') {
+                generateCalendar();
+            } else if (tabName === 'stats') {
+                loadStatistics();
+            }
+        }
+
+        // Выбор типа заявления
+        function selectStatementType(type) {
+            selectedStatementType = type;
+            const typeNames = {
+                'absence': 'Отсутствие в общежитии',
+                'guests': 'Прием гостей',
+                'repair': 'Ремонт',
+                'other': 'Другое заявление'
+            };
+
+            document.getElementById('statementType').value = typeNames[type];
+            document.getElementById('formTitle').textContent = typeNames[type];
+            document.getElementById('statementForm').style.display = 'block';
+            
+            // Автозаполнение дат
+            const today = new Date();
+            document.getElementById('startDate').value = today.toISOString().split('T')[0];
+            
+            const endDate = new Date();
+            endDate.setDate(today.getDate() + 3);
+            document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+        }
+
+        // Отправка заявления
+        function submitStatement() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const reason = document.getElementById('statementReason').value;
+
+            if (!startDate || !endDate || !reason) {
+                alert('Заполните все обязательные поля!');
+                return;
+            }
+
+            const newStatement = {
+                id: statementsData.length + 1,
+                student: document.getElementById('studentName').value,
+                room: "201А",
+                floor: "2",
+                type: selectedStatementType,
+                typeText: document.getElementById('statementType').value,
+                startDate: startDate,
+                endDate: endDate,
+                reason: reason,
+                status: "new",
+                statusText: "На рассмотрении",
+                submitted: new Date().toISOString().slice(0, 16).replace('T', ' '),
+                contact: document.getElementById('contactPhone').value,
+                emergency: document.getElementById('emergencyContact').value
+            };
+
+            statementsData.push(newStatement);
+            alert('Заявление успешно отправлено на рассмотрение!');
+            
+            // Очистка формы
+            document.getElementById('statementReason').value = '';
+            document.getElementById('contactPhone').value = '';
+            document.getElementById('emergencyContact').value = '';
+            document.getElementById('statementForm').style.display = 'none';
+        }
+
+        // Загрузка заявлений
+        function loadStatements() {
+            currentStatements = [...statementsData];
+            renderStatements();
+        }
+
+        // Фильтрация заявлений
+        function filterStatements() {
+            const status = document.getElementById('statusFilter').value;
+            const type = document.getElementById('typeFilter').value;
+            const floor = document.getElementById('floorFilter').value;
+            const date = document.getElementById('dateFilter').value;
+
+            currentStatements = statementsData.filter(statement => {
+                const matchesStatus = !status || statement.status === status;
+                const matchesType = !type || statement.type === type;
+                const matchesFloor = !floor || statement.floor === floor;
+                const matchesDate = !date || statement.startDate === date;
+                
+                return matchesStatus && matchesType && matchesFloor && matchesDate;
+            });
+
+            renderStatements();
+        }
+
+        // Отображение заявлений
+        function renderStatements() {
+            const container = document.getElementById('statementsList');
+            
+            if (currentStatements.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #7f8c8d;">Заявления не найдены</div>';
+                return;
+            }
+
+            container.innerHTML = currentStatements.map(statement => `
+                <div class="statement-card ${statement.status}">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                        <div>
+                            <strong>${statement.student}</strong><br>
+                            Комната: ${statement.room} | Этаж: ${statement.floor}<br>
+                            <span class="status-badge status-${statement.status}">
+                                ${statement.statusText}
+                            </span>
+                        </div>
+                        <div style="text-align: right;">
+                            <small>${statement.submitted}</small><br>
+                            <span style="color: #3498db; font-weight: bold;">${statement.typeText}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="student-info">
+                        <div class="student-detail">
+                            <span class="detail-label">Период</span>
+                            <span class="detail-value">${statement.startDate} - ${statement.endDate}</span>
+                        </div>
+                        <div class="student-detail">
+                            <span class="detail-label">Контакт</span>
+                            <span class="detail-value">${statement.contact || 'Не указан'}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <strong>Причина:</strong> ${statement.reason}
+                    </div>
+                    
+                    ${statement.emergency ? `
+                    <div style="margin-bottom: 1rem; padding: 0.5rem; background: #fff3cd; border-radius: 4px;">
+                        <strong>Экстренный контакт:</strong> ${statement.emergency}
+                    </div>
+                    ` : ''}
+                    
+                    <div class="actions">
+                        ${statement.status === 'new' ? `
+                            <button class="btn btn-primary" onclick="approveStatement(${statement.id})">✅ Одобрить</button>
+                            <button class="btn btn-danger" onclick="rejectStatement(${statement.id})">❌ Отклонить</button>
+                        ` : ''}
+                        <button class="btn btn-secondary" onclick="viewStatement(${statement.id})">👁️ Просмотр</button>
+                        <button class="btn btn-warning" onclick="editStatement(${statement.id})">✏️ Редактировать</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Генерация календаря
+        function generateCalendar() {
+            const calendar = document.getElementById('calendarGrid');
+            calendar.innerHTML = '';
+            
+            // Заголовки дней недели
+            const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+            days.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.style.fontWeight = 'bold';
+                dayHeader.style.textAlign = 'center';
+                dayHeader.textContent = day;
+                calendar.appendChild(dayHeader);
+            });
+            
+            // Дни месяца (упрощенная версия)
+            for (let i = 1; i <= 31; i++) {
+                const day = document.createElement('div');
+                day.className = 'calendar-day';
+                day.textContent = i;
+                
+                // Помечаем дни с заявлениями
+                const hasStatement = statementsData.some(s => 
+                    parseInt(s.startDate.split('-')[2]) === i || 
+                    parseInt(s.endDate.split('-')[2]) === i
+                );
+                
+                if (hasStatement) {
+                    day.classList.add('has-statement');
+                }
+                
+                day.onclick = () => showDayStatements(i);
+                calendar.appendChild(day);
+            }
+        }
+
+        function showDayStatements(day) {
+            const dayStatements = statementsData.filter(statement => {
+                const startDay = parseInt(statement.startDate.split('-')[2]);
+                const endDay = parseInt(statement.endDate.split('-')[2]);
+                return day >= startDay && day <= endDay;
+            });
+            
+            const container = document.getElementById('dayStatements');
+            if (dayStatements.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #7f8c8d;">На этот день заявлений нет</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <h4>Заявления на ${day} января:</h4>
+                ${dayStatements.map(s => `
+                    <div style="padding: 1rem; margin: 0.5rem 0; background: #f8f9fa; border-radius: 6px;">
+                        <strong>${s.student}</strong> - ${s.typeText}<br>
+                        <small>${s.startDate} - ${s.endDate}</small>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        // Действия с заявлениями
+        function approveStatement(id) {
+            if (confirm('Одобрить это заявление?')) {
+                const statement = statementsData.find(s => s.id === id);
+                if (statement) {
+                    statement.status = 'approved';
+                    statement.statusText = 'Одобрено';
+                    loadStatements();
+                    alert('Заявление одобрено!');
+                }
+            }
+        }
+
+        function rejectStatement(id) {
+            const reason = prompt('Укажите причину отклонения:');
+            if (reason) {
+                const statement = statementsData.find(s => s.id === id);
+                if (statement) {
+                    statement.status = 'rejected';
+                    statement.statusText = 'Отклонено: ' + reason;
+                    loadStatements();
+                    alert('Заявление отклонено!');
+                }
+            }
+        }
+
+        function viewStatement(id) {
+            const statement = statementsData.find(s => s.id === id);
+            if (statement) {
+                alert(`Просмотр заявления #${id}\n\nСтудент: ${statement.student}\nТип: ${statement.typeText}\nСтатус: ${statement.statusText}\nПериод: ${statement.startDate} - ${statement.endDate}\nПричина: ${statement.reason}`);
+            }
+        }
+
+        function editStatement(id) {
+            alert(`Редактирование заявления #${id} (будет реализовано в полной версии)`);
+        }
+
+        // Загрузка статистики
+        function loadStatistics() {
+            document.getElementById('totalStatements').textContent = statementsData.length;
+            document.getElementById('pendingStatements').textContent = statementsData.filter(s => 
+                s.status === 'new').length;
+            
+            const approved = statementsData.filter(s => s.status === 'approved').length;
+            const totalProcessed = statementsData.filter(s => s.status !== 'new').length;
+            const approvalRate = totalProcessed > 0 ? Math.round((approved / totalProcessed) * 100) : 0;
+            document.getElementById('approvalRate').textContent = approvalRate + '%';
+            
+            document.getElementById('avgProcessing').textContent = '24ч'; // Заглушка
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStatements();
+            generateCalendar();
+            loadStatistics();
+        });
+    </script>
+</body>
+</html>

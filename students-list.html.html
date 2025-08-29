@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список студентов - Диспетчер Общежития</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            align-items: end;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+        input, select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        .stats {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 2rem;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #2c3e50;
+            color: white;
+            cursor: pointer;
+            position: relative;
+        }
+        th:hover {
+            background-color: #34495e;
+        }
+        th::after {
+            content: '↕';
+            position: absolute;
+            right: 10px;
+            opacity: 0.5;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .room-cell {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .page-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            📋 Список студентов
+            <button class="btn btn-primary" onclick="location.href='import-students.html'">
+                📥 Импорт студентов
+            </button>
+        </h1>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalStudents">0</div>
+                <div>Всего студентов</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalFloors">0</div>
+                <div>Этажей занято</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalRooms">0</div>
+                <div>Комнат занято</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="form-group">
+                <label>Поиск по ФИО или группе</label>
+                <input type="text" id="searchInput" placeholder="Введите имя или группу..." oninput="filterStudents()">
+            </div>
+            <div class="form-group">
+                <label>Этаж</label>
+                <select id="floorFilter" onchange="filterStudents()">
+                    <option value="">Все этажи</option>
+                    <option value="2">2 этаж</option>
+                    <option value="3">3 этаж</option>
+                    <option value="5">5 этаж</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Секция</label>
+                <select id="sectionFilter" onchange="filterStudents()">
+                    <option value="">Все секции</option>
+                    <option value="1">Секция 1</option>
+                    <option value="2">Секция 2</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Комната</label>
+                <input type="text" id="roomFilter" placeholder="Номер комнаты" oninput="filterStudents()">
+            </div>
+            <div>
+                <button class="btn btn-secondary" onclick="clearFilters()">
+                    ❌ Сбросить
+                </button>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0)">ФИО</th>
+                    <th onclick="sortTable(1)">Комната</th>
+                    <th onclick="sortTable(2)">Этаж</th>
+                    <th onclick="sortTable(3)">Группа</th>
+                    <th onclick="sortTable(4)">Курс</th>
+                    <th onclick="sortTable(5)">Телефон</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody id="studentsTableBody">
+                <!-- Сюда автоматически вставятся студенты -->
+            </tbody>
+        </table>
+
+        <div class="pagination" id="pagination">
+            <!-- Пагинация будет создана автоматически -->
+        </div>
+    </div>
+
+    <script>
+        // Ваши данные студентов (из импорта)
+        const students = [
+            {fullName: "Кудрявцева Е В25", room: "201А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+            {fullName: "Зайцева В П14", room: "201А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+            {fullName: "Бадикова Р К14", room: "201А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+            {fullName: "Печенцова С", room: "201Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+            {fullName: "Лючинша", room: "201Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+            {fullName: "Бичинова Л", room: "201Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+            {fullName: "Тенгерекова", room: "201Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+            {fullName: "Бергер Ю", room: "202А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+            {fullName: "Евстратова В К13", room: "202А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+            {fullName: "Сыренко А К12", room: "202Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+            // ... и так далее для всех ваших студентов
+        ];
+
+        let currentSort = { column: null, direction: 'asc' };
+        const itemsPerPage = 20;
+        let currentPage = 1;
+        let filteredStudents = [];
+
+        // Инициализация страницы
+        function initPage() {
+            filteredStudents = [...students];
+            updateStatistics();
+            renderTable();
+            updatePagination();
+        }
+
+        // Обновление статистики
+        function updateStatistics() {
+            document.getElementById('totalStudents').textContent = students.length;
+            
+            const uniqueFloors = new Set(students.map(s => s.floor));
+            document.getElementById('totalFloors').textContent = uniqueFloors.size;
+            
+            const uniqueRooms = new Set(students.map(s => s.room));
+            document.getElementById('totalRooms').textContent = uniqueRooms.size;
+        }
+
+        // Фильтрация студентов
+        function filterStudents() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const floorFilter = document.getElementById('floorFilter').value;
+            const roomFilter = document.getElementById('roomFilter').value.toLowerCase();
+
+            filteredStudents = students.filter(student => {
+                const matchesSearch = student.fullName.toLowerCase().includes(searchText) || 
+                                    student.group.toLowerCase().includes(searchText);
+                const matchesFloor = !floorFilter || student.floor.includes(floorFilter);
+                const matchesRoom = !roomFilter || student.room.toLowerCase().includes(roomFilter);
+                
+                return matchesSearch && matchesFloor && matchesRoom;
+            });
+
+            currentPage = 1;
+            renderTable();
+            updatePagination();
+        }
+
+        // Очистка фильтров
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('floorFilter').value = '';
+            document.getElementById('roomFilter').value = '';
+            filterStudents();
+        }
+
+        // Сортировка таблицы
+        function sortTable(columnIndex) {
+            if (currentSort.column === columnIndex) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = columnIndex;
+                currentSort.direction = 'asc';
+            }
+
+            filteredStudents.sort((a, b) => {
+                let valueA, valueB;
+                
+                switch(columnIndex) {
+                    case 0: valueA = a.fullName; valueB = b.fullName; break;
+                    case 1: valueA = a.room; valueB = b.room; break;
+                    case 2: valueA = a.floor; valueB = b.floor; break;
+                    case 3: valueA = a.group; valueB = b.group; break;
+                    case 4: valueA = a.course; valueB = b.course; break;
+                    case 5: valueA = a.phone; valueB = b.phone; break;
+                    default: return 0;
+                }
+
+                if (valueA < valueB) return currentSort.direction === 'asc' ? -1 : 1;
+                if (valueA > valueB) return currentSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            renderTable();
+        }
+
+        // Отображение таблицы
+        function renderTable() {
+            const tbody = document.getElementById('studentsTableBody');
+            tbody.innerHTML = '';
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageStudents = filteredStudents.slice(start, end);
+
+            pageStudents.forEach(student => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.fullName}</td>
+                    <td class="room-cell">${student.room}</td>
+                    <td>${student.floor}</td>
+                    <td>${student.group}</td>
+                    <td>${student.course}</td>
+                    <td>${student.phone || 'не указан'}</td>
+                    <td class="actions">
+                        <button class="btn btn-primary btn-sm" onclick="editStudent('${student.fullName}')">
+                            ✏️
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="deleteStudent('${student.fullName}')">
+                            🗑️
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Обновление пагинации
+        function updatePagination() {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+            
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                pageBtn.textContent = i;
+                pageBtn.onclick = () => {
+                    currentPage = i;
+                    renderTable();
+                    updatePagination();
+                };
+                pagination.appendChild(pageBtn);
+            }
+        }
+
+        // Функции действий
+        function editStudent(fullName) {
+            alert(`Редактирование студента: ${fullName}\n(Этот функционал будет реализован в следующей версии)`);
+        }
+
+        function deleteStudent(fullName) {
+            if (confirm(`Вы уверены, что хотите удалить студента ${fullName}?`)) {
+                alert(`Студент ${fullName} удален! (В демо-версии удаление не сохраняется)`);
+            }
+        }
+
+        // Запуск при загрузке страницы
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

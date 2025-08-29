@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отчеты - Диспетчер Общежития</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .report-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .report-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+            transition: transform 0.3s;
+        }
+        .report-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .report-card h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        .report-card p {
+            color: #7f8c8d;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .date-range {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+        input, select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .btn-primary {
+            background-color: #27ae60;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #219653;
+        }
+        .btn-excel {
+            background-color: #27ae60;
+            color: white;
+        }
+        .btn-pdf {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .btn-print {
+            background-color: #3498db;
+            color: white;
+        }
+        .filters {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .results {
+            margin-top: 2rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #2c3e50;
+            color: white;
+        }
+        .summary {
+            background: #e8f5e8;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+        .export-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Отчеты для начальства</h1>
+
+        <div class="report-types">
+            <div class="report-card">
+                <h3>📋 Список проживающих</h3>
+                <p>Полный список всех студентов с детальной информацией о размещении</p>
+                <button class="btn btn-primary" onclick="showReport('residents')">
+                    Сформировать отчет
+                </button>
+            </div>
+
+            <div class="report-card">
+                <h3>✅ Журнал посещаемости</h3>
+                <p>Отчет по отметкам за выбранный период с фильтрацией по этажам</p>
+                <button class="btn btn-primary" onclick="showReport('attendance')">
+                    Сформировать отчет
+                </button>
+            </div>
+
+            <div class="report-card">
+                <h3>⚠️ Нарушения правил</h3>
+                <p>Сводка по нарушениям с группировкой по типам и студентам</p>
+                <button class="btn btn-primary" onclick="showReport('violations')">
+                    Сформировать отчет
+                </button>
+            </div>
+
+            <div class="report-card">
+                <h3>📈 Статистика за период</h3>
+                <p>Общая статистика по occupancy rate и другим показателям</p>
+                <button class="btn btn-primary" onclick="showReport('statistics')">
+                    Сформировать отчет
+                </button>
+            </div>
+        </div>
+
+        <div id="reportFilters" class="filters" style="display: none;">
+            <h3 id="reportTitle">Настройки отчета</h3>
+            
+            <div class="filter-row">
+                <div class="form-group">
+                    <label>Период с</label>
+                    <input type="date" id="dateFrom" value="<?php echo date('Y-m-d', strtotime('-1 month')); ?>">
+                </div>
+                <div class="form-group">
+                    <label>Период по</label>
+                    <input type="date" id="dateTo" value="<?php echo date('Y-m-d'); ?>">
+                </div>
+                <div class="form-group">
+                    <label>Этаж</label>
+                    <select id="floorFilter">
+                        <option value="">Все этажи</option>
+                        <option value="2">2 этаж</option>
+                        <option value="3">3 этаж</option>
+                        <option value="5">5 этаж</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-row">
+                <div class="form-group">
+                    <label>Группа</label>
+                    <input type="text" id="groupFilter" placeholder="Фильтр по группе">
+                </div>
+                <div class="form-group">
+                    <label>Сортировка</label>
+                    <select id="sortBy">
+                        <option value="name">По ФИО</option>
+                        <option value="room">По комнате</option>
+                        <option value="floor">По этажу</option>
+                        <option value="group">По группе</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Формат</label>
+                    <select id="format">
+                        <option value="web">Веб-просмотр</option>
+                        <option value="excel">Excel</option>
+                        <option value="pdf">PDF</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="generateReport()">
+                🚀 Сформировать отчет
+            </button>
+        </div>
+
+        <div id="reportResults" class="results" style="display: none;">
+            <div class="summary" id="reportSummary">
+                <!-- Сюда будет вставляться сводка -->
+            </div>
+
+            <div id="reportTable">
+                <!-- Сюда будет вставляться таблица с данными -->
+            </div>
+
+            <div class="export-buttons">
+                <button class="btn btn-excel" onclick="exportReport('excel')">
+                    📊 Excel
+                </button>
+                <button class="btn btn-pdf" onclick="exportReport('pdf')">
+                    📄 PDF
+                </button>
+                <button class="btn btn-print" onclick="window.print()">
+                    🖨️ Печать
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentReportType = '';
+
+        // Показать фильтры для выбранного отчета
+        function showReport(type) {
+            currentReportType = type;
+            const titles = {
+                'residents': 'Список проживающих',
+                'attendance': 'Журнал посещаемости',
+                'violations': 'Нарушения правил',
+                'statistics': 'Статистика за период'
+            };
+
+            document.getElementById('reportTitle').textContent = titles[type];
+            document.getElementById('reportFilters').style.display = 'block';
+            document.getElementById('reportResults').style.display = 'none';
+        }
+
+        // Генерация отчета
+        function generateReport() {
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+            const floor = document.getElementById('floorFilter').value;
+            const format = document.getElementById('format').value;
+
+            // Здесь будет реальная генерация отчета
+            // Пока демонстрация
+            const reportData = generateDemoReport(currentReportType, dateFrom, dateTo, floor);
+            
+            document.getElementById('reportSummary').innerHTML = reportData.summary;
+            document.getElementById('reportTable').innerHTML = reportData.table;
+            document.getElementById('reportResults').style.display = 'block';
+
+            if (format !== 'web') {
+                exportReport(format);
+            }
+        }
+
+        // Демо-генерация отчетов
+        function generateDemoReport(type, dateFrom, dateTo, floor) {
+            const reports = {
+                'residents': {
+                    summary: `<strong>Список проживающих</strong><br>
+                             Период: ${dateFrom} - ${dateTo}<br>
+                             Этаж: ${floor || 'Все'}<br>
+                             Всего студентов: 156`,
+                    table: `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ФИО</th>
+                                    <th>Комната</th>
+                                    <th>Этаж</th>
+                                    <th>Группа</th>
+                                    <th>Телефон</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Кудрявцева Е В25</td><td>201А</td><td>2</td><td>В25</td><td>+7...</td><td>Проживает</td></tr>
+                                <tr><td>Зайцева В П14</td><td>201А</td><td>2</td><td>П14</td><td>+7...</td><td>Проживает</td></tr>
+                                <tr><td>Бадикова Р К14</td><td>201А</td><td>2</td><td>К14</td><td>+7...</td><td>Проживает</td></tr>
+                            </tbody>
+                        </table>
+                    `
+                },
+                'attendance': {
+                    summary: `<strong>Журнал посещаемости</strong><br>
+                             Период: ${dateFrom} - ${dateTo}<br>
+                             Этаж: ${floor || 'Все'}<br>
+                             Средняя явка: 92%`,
+                    table: `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Дата</th>
+                                    <th>Этаж</th>
+                                    <th>Всего</th>
+                                    <th>Присут.</th>
+                                    <th>Отсут.</th>
+                                    <th>% явки</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>2024-01-15</td><td>2</td><td>45</td><td>42</td><td>3</td><td>93%</td></tr>
+                                <tr><td>2024-01-15</td><td>3</td><td>67</td><td>65</td><td>2</td><td>97%</td></tr>
+                                <tr><td>2024-01-14</td><td>Все</td><td>156</td><td>148</td><td>8</td><td>95%</td></tr>
+                            </tbody>
+                        </table>
+                    `
+                }
+            };
+
+            return reports[type] || {summary: 'Отчет не найден', table: ''};
+        }
+
+        // Экспорт отчета
+        function exportReport(format) {
+            alert(`Отчет экспортирован в формате ${format.toUpperCase()}!\n\nВ реальной системе здесь будет скачивание файла.`);
+            
+            if (format === 'excel') {
+                // Здесь будет генерация Excel
+                console.log('Генерация Excel файла...');
+            } else if (format === 'pdf') {
+                // Здесь будет генерация PDF
+                console.log('Генерация PDF файла...');
+            }
+        }
+
+        // Установка дат по умолчанию
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            const monthAgo = new Date();
+            monthAgo.setMonth(monthAgo.getMonth() - 1);
+            const monthAgoStr = monthAgo.toISOString().split('T')[0];
+
+            document.getElementById('dateFrom').value = monthAgoStr;
+            document.getElementById('dateTo').value = today;
+        });
+    </script>
+</body>
+</html>

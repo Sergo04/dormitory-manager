@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Диспетчер Общежития - Главная</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .logo h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 2rem;
+        }
+        .logo-icon {
+            font-size: 2.5rem;
+        }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .nav-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            text-decoration: none;
+            color: #2c3e50;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .nav-card:hover {
+            transform: translateY(-5px);
+            border-color: #3498db;
+        }
+        .nav-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .welcome-message {
+            text-align: center;
+            margin: 2rem 0;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">🏠</div>
+                <h1>Диспетчер Общежития</h1>
+            </div>
+            <div class="welcome-message">
+                <h2>Добро пожаловать!</h2>
+                <p>Сегодня: <span id="currentDate"></span></p>
+            </div>
+        </header>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">156</div>
+                <div>Всего студентов</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">142</div>
+                <div>На месте</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">14</div>
+                <div>Отсутствуют</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">8</div>
+                <div>Нарушений</div>
+            </div>
+        </div>
+
+        <div class="nav-grid">
+            <a href="students-list.html" class="nav-card">
+                <div class="nav-icon">👥</div>
+                <h3>Студенты</h3>
+                <p>База данных студентов</p>
+            </a>
+
+            <a href="attendance.html" class="nav-card">
+                <div class="nav-icon">✅</div>
+                <h3>Вечерняя отметка</h3>
+                <p>Контроль присутствия</p>
+            </a>
+
+            <a href="violations.html" class="nav-card">
+                <div class="nav-icon">⚠️</div>
+                <h3>Нарушения</h3>
+                <p>Учет нарушений правил</p>
+            </a>
+
+            <a href="statements.html" class="nav-card">
+                <div class="nav-icon">📋</div>
+                <h3>Заявления</h3>
+                <p>Заявления студентов</p>
+            </a>
+
+            <a href="reports.html" class="nav-card">
+                <div class="nav-icon">📊</div>
+                <h3>Отчеты</h3>
+                <p>Отчеты для начальства</p>
+            </a>
+
+            <a href="import-students.html" class="nav-card">
+                <div class="nav-icon">📥</div>
+                <h3>Импорт данных</h3>
+                <p>Массовое добавление</p>
+            </a>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem; color: #666;">
+            <p>Система управления студенческим общежитием</p>
+        </div>
+    </div>
+
+    <script>
+        // Обновление даты
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('ru-RU', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    </script>
+</body>
+</html>
