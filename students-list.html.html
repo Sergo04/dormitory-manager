@@ -79,6 +79,14 @@
         .btn-secondary:hover {
             background-color: #7f8c8d;
         }
+        .btn-back {
+            background-color: #f39c12;
+            color: white;
+            margin-right: 1rem;
+        }
+        .btn-back:hover {
+            background-color: #e67e22;
+        }
         .stats {
             background: #f8f9fa;
             padding: 1rem;
@@ -153,12 +161,46 @@
             color: white;
             border-color: #3498db;
         }
+        
+        /* Модальное окно редактирования */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #000;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>
-            📋 Список студентов
+            <div>
+                <button class="btn btn-back" onclick="goBack()">← Назад</button>
+                📋 Список студентов
+            </div>
             <button class="btn btn-primary" onclick="location.href='import-students.html'">
                 📥 Импорт студентов
             </button>
@@ -197,8 +239,8 @@
                 <label>Секция</label>
                 <select id="sectionFilter" onchange="filterStudents()">
                     <option value="">Все секции</option>
-                    <option value="1">Секция 1</option>
-                    <option value="2">Секция 2</option>
+                    <option value="А">Секция А</option>
+                    <option value="Б">Секция Б</option>
                 </select>
             </div>
             <div class="form-group">
@@ -234,21 +276,181 @@
         </div>
     </div>
 
+    <!-- Модальное окно редактирования -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>✏️ Редактирование студента</h2>
+            <form id="editForm">
+                <input type="hidden" id="editIndex">
+                <div class="form-group">
+                    <label>ФИО</label>
+                    <input type="text" id="editFullName" required>
+                </div>
+                <div class="form-group">
+                    <label>Комната</label>
+                    <input type="text" id="editRoom" required>
+                </div>
+                <div class="form-group">
+                    <label>Группа</label>
+                    <input type="text" id="editGroup">
+                </div>
+                <div class="form-group">
+                    <label>Курс</label>
+                    <input type="number" id="editCourse" min="1" max="6">
+                </div>
+                <div class="form-group">
+                    <label>Телефон</label>
+                    <input type="tel" id="editPhone">
+                </div>
+                <button type="submit" class="btn btn-primary">💾 Сохранить</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">❌ Отмена</button>
+            </form>
+        </div>
+    </div>
+
     <script>
-        // Ваши данные студентов (из импорта)
+        // Ваши данные студентов
         const students = [
             {fullName: "Кудрявцева Е В25", room: "201А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
-            {fullName: "Зайцева В П14", room: "201А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
-            {fullName: "Бадикова Р К14", room: "201А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
-            {fullName: "Печенцова С", room: "201Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
-            {fullName: "Лючинша", room: "201Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
-            {fullName: "Бичинова Л", room: "201Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
-            {fullName: "Тенгерекова", room: "201Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
-            {fullName: "Бергер Ю", room: "202А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
-            {fullName: "Евстратова В К13", room: "202А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
-            {fullName: "Сыренко А К12", room: "202Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
-            // ... и так далее для всех ваших студентов
-        ];
+{fullName: "Зайцева В П14", room: "201А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Бадикова Р К14", room: "201А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Печенцова С", room: "201Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Лючинша", room: "201Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Бичинова Л", room: "201Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Тенгерекова", room: "201Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Бергер Ю", room: "202А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Евстратова В К13", room: "202А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Сыренко А К12", room: "202Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Тетушкина А К12", room: "202Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Киселева С К12", room: "202Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Перепелицина А К12", room: "202Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Кривощекова Т Т313", room: "203А1", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Бектирова Т314", room: "203А1", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Коспокова Э", room: "203А2", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Шубина", room: "203А2", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Мамашева", room: "203Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Малькова", room: "203Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Голова", room: "203Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Недобежкина", room: "211А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Толстова", room: "211А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Одинамамадова", room: "211Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Донгак", room: "211Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Чеснокова", room: "211Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Дилеков", room: "215А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Джумажанов", room: "215А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Кокпашев", room: "215А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Махомета", room: "215Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Улагашев", room: "215Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Кречетов", room: "215Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Самиев", room: "215Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Карпов", room: "220А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Кириллов", room: "220А", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Лошаков", room: "220Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Саблаков", room: "220Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Иркитов", room: "220Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Самаев", room: "220Б", floor: "2 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Сырых !!!", room: "301А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Шульгин", room: "301А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Матин", room: "301Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Кукпенеков", room: "301Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Бедюров", room: "301Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Альчин", room: "302А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Булбанов", room: "302А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Альчин", room: "302А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Бахтушкин", room: "302Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Юнхунов", room: "302Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Филимонов !!!", room: "302Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Сергеева (кош)", room: "303А1", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Березикова", room: "303Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Попошева", room: "303Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Антонова", room: "303Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Забельникова", room: "303Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Еремеев", room: "304Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Саксаев !!!", room: "304Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Корнилов", room: "304А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Плетнев", room: "304А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Кульзенов", room: "304А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Сырых", room: "305А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Скороходов", room: "305Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Максимов", room: "305Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Угничев", room: "305Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Бабаев", room: "305Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Мажо", room: "307А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Одонова", room: "307А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Гумарова", room: "307Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Доржу", room: "307Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Битуганова", room: "307Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Емильянова", room: "307Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Дмитриева", room: "308А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Поткина", room: "308А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Вьюненко", room: "308А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Токмашова", room: "308Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Савченко", room: "308Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Соловьева", room: "308Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Адыкаева", room: "308Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Пушкина", room: "309А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Сергеевна", room: "309А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Романова !!!", room: "309Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Магомодова !!!", room: "309Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Акулова !!!", room: "309Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Афанасьева", room: "309Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Медведева", room: "310А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Карасова", room: "310А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Черепанова", room: "310Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Кондыкова", room: "310Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Якимченко", room: "310Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Шадрина", room: "310Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Акчинов", room: "311А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Яилгаков", room: "311А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Чигжит", room: "311Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Очуртов !!!", room: "311Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Кангинов", room: "311Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Юнхунов Э !", room: "311Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Арбаев", room: "312А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Юнхунов И", room: "312А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Кебеков", room: "312Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Енчинов", room: "312Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Чучин", room: "312Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Иркитов", room: "312Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Крачнакова", room: "313А1", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Новикова", room: "313А2", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Анчина", room: "313Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Кыдатова", room: "313Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Казакова", room: "313Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Делтокова", room: "313Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Федоров", room: "314А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Субботин", room: "314А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Сафронов", room: "314А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Яжанкин", room: "314Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Тадышев", room: "314Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Белеков", room: "314Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Решетов", room: "314Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Майманов", room: "315А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Уйгулуков", room: "315А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Иргит", room: "315А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Сегерткышев", room: "315Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Чирков", room: "315Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Лобанов", room: "315Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Топтыгин", room: "318А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Левин", room: "318А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Пан", room: "318А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Миркулеев", room: "318Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Вахидов", room: "318Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Кузьмин", room: "318Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Мирханов", room: "318Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Жукова", room: "320А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Семендеева", room: "320А", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Шустинская", room: "320Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Рожкова", room: "320Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Козлова", room: "320Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Сотникова", room: "320Б", floor: "3 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Канысова", room: "513А1", floor: "5 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Малчинова", room: "513А1", floor: "5 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Бочкарева", room: "513А2", floor: "5 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Глушкова", room: "513А2", floor: "5 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Бологова", room: "513Б", floor: "5 этаж", group: "Нужно уточнить", course: 1, phone: ""},
+{fullName: "Кураганова", room: "513Б", floor: "5 этаж", group: "Нужно уточнить", course: 1, phone: ""},];
 
         let currentSort = { column: null, direction: 'asc' };
         const itemsPerPage = 20;
@@ -341,7 +543,7 @@
             const end = start + itemsPerPage;
             const pageStudents = filteredStudents.slice(start, end);
 
-            pageStudents.forEach(student => {
+            pageStudents.forEach((student, index) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${student.fullName}</td>
@@ -351,10 +553,10 @@
                     <td>${student.course}</td>
                     <td>${student.phone || 'не указан'}</td>
                     <td class="actions">
-                        <button class="btn btn-primary btn-sm" onclick="editStudent('${student.fullName}')">
+                        <button class="btn btn-primary btn-sm" onclick="editStudent(${start + index})">
                             ✏️
                         </button>
-                        <button class="btn btn-secondary btn-sm" onclick="deleteStudent('${student.fullName}')">
+                        <button class="btn btn-secondary btn-sm" onclick="deleteStudent(${start + index})">
                             🗑️
                         </button>
                     </td>
@@ -383,14 +585,76 @@
             }
         }
 
-        // Функции действий
-        function editStudent(fullName) {
-            alert(`Редактирование студента: ${fullName}\n(Этот функционал будет реализован в следующей версии)`);
+        // Кнопка "Назад"
+        function goBack() {
+            window.history.back();
         }
 
-        function deleteStudent(fullName) {
-            if (confirm(`Вы уверены, что хотите удалить студента ${fullName}?`)) {
-                alert(`Студент ${fullName} удален! (В демо-версии удаление не сохраняется)`);
+        // Редактирование студента
+        function editStudent(index) {
+            const student = filteredStudents[index];
+            document.getElementById('editIndex').value = students.indexOf(student);
+            document.getElementById('editFullName').value = student.fullName;
+            document.getElementById('editRoom').value = student.room;
+            document.getElementById('editGroup').value = student.group;
+            document.getElementById('editCourse').value = student.course;
+            document.getElementById('editPhone').value = student.phone;
+            
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        // Закрытие модального окна
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // Сохранение изменений
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const index = document.getElementById('editIndex').value;
+            students[index] = {
+                fullName: document.getElementById('editFullName').value,
+                room: document.getElementById('editRoom').value,
+                floor: students[index].floor, // Сохраняем этаж
+                group: document.getElementById('editGroup').value,
+                course: parseInt(document.getElementById('editCourse').value) || 1,
+                phone: document.getElementById('editPhone').value
+            };
+            
+            // Автоматически определяем этаж по комнате
+            const roomFirstDigit = students[index].room.match(/\d/);
+            if (roomFirstDigit) {
+                students[index].floor = roomFirstDigit[0] + ' этаж';
+            }
+            
+            // Обновляем данные
+            filterStudents();
+            updateStatistics();
+            closeModal();
+            
+            alert('Данные студента успешно обновлены!');
+        });
+
+        // Удаление студента
+        function deleteStudent(index) {
+            const student = filteredStudents[index];
+            if (confirm(`Вы уверены, что хотите удалить студента ${student.fullName}?`)) {
+                const mainIndex = students.indexOf(student);
+                if (mainIndex !== -1) {
+                    students.splice(mainIndex, 1);
+                    filterStudents();
+                    updateStatistics();
+                    alert('Студент удален!');
+                }
+            }
+        }
+
+        // Закрытие модального окна при клике вне его
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeModal();
             }
         }
 

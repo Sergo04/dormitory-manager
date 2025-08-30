@@ -146,6 +146,10 @@
             justify-content: center;
         }
     </style>
+    <!-- Подключаем библиотеки для экспорта -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.0/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -191,11 +195,11 @@
             <div class="filter-row">
                 <div class="form-group">
                     <label>Период с</label>
-                    <input type="date" id="dateFrom" value="<?php echo date('Y-m-d', strtotime('-1 month')); ?>">
+                    <input type="date" id="dateFrom">
                 </div>
                 <div class="form-group">
                     <label>Период по</label>
-                    <input type="date" id="dateTo" value="<?php echo date('Y-m-d'); ?>">
+                    <input type="date" id="dateTo">
                 </div>
                 <div class="form-group">
                     <label>Этаж</label>
@@ -319,9 +323,144 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr><td>Кудрявцева Е В25</td><td>201А</td><td>2</td><td>В25</td><td>+7...</td><td>Проживает</td></tr>
-                                <tr><td>Зайцева В П14</td><td>201А</td><td>2</td><td>П14</td><td>+7...</td><td>Проживает</td></tr>
-                                <tr><td>Бадикова Р К14</td><td>201А</td><td>2</td><td>К14</td><td>+7...</td><td>Проживает</td></tr>
+                               <tr><td>Зайцева В П14</td><td>201А</td><td>2</td><td>П14</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Бадикова Р К14</td><td>201А</td><td>2</td><td>К14</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Печенцова С</td><td>201Б</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Лючинша</td><td>201Б</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Бичинова Л</td><td>201Б</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Тенгерекова</td><td>201Б</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Бергер Ю</td><td>202А</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Евстратова В К13</td><td>202А</td><td>2</td><td>К13</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Сыренко А К12</td><td>202Б</td><td>2</td><td>К12</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Тетушкина А К12</td><td>202Б</td><td>2</td><td>К12</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Киселева С К12</td><td>202Б</td><td>2</td><td>К12</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Перепелицина А К12</td><td>202Б</td><td>2</td><td>К12</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Кривощекова Т Т313</td><td>203А1</td><td>2</td><td>Т313</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Бектирова Т314</td><td>203А1</td><td>2</td><td>Т314</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Коспокова Э</td><td>203А2</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Шубина</td><td>203А2</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Мамашева</td><td>203Б</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Малькова</td><td>203Б</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Голова</td><td>203Б</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Недобежкина</td><td>211А</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Толстова</td><td>211А</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Одинамамадова</td><td>211Б</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Донгак</td><td>211Б</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Чеснокова</td><td>211Б</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Дилеков</td><td>215А</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Джумажанов</td><td>215А</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Кокпашев</td><td>215А</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Махомета</td><td>215Б</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Улагашев</td><td>215Б</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Кречетов</td><td>215Б</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Самиев</td><td>215Б</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Карпов</td><td>220А</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Кириллов</td><td>220А</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Лошаков</td><td>220Б</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Саблаков</td><td>220Б</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Иркитов</td><td>220Б</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Самаев</td><td>220Б</td><td>2</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Сырых !!!</td><td>301А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Шульгин</td><td>301А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Матин</td><td>301Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Кукпенеков</td><td>301Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Бедюров</td><td>301Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Альчин</td><td>302А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Булбанов</td><td>302А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Альчин</td><td>302А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Бахтушкин</td><td>302Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Юнхунов</td><td>302Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Филимонов !!!</td><td>302Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Сергеева (кош)</td><td>303А1</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Березикова</td><td>303Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Попошева</td><td>303Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Антонова</td><td>303Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Забельникова</td><td>303Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Еремеев</td><td>304Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Саксаев !!!</td><td>304Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Корнилов</td><td>304А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Плетнев</td><td>304А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Кульзенов</td><td>304А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Сырых</td><td>305А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Скороходов</td><td>305Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Максимов</td><td>305Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Угничев</td><td>305Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Бабаев</td><td>305Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Мажо</td><td>307А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Одонова</td><td>307А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Гумарова</td><td>307Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Доржу</td><td>307Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Битуганова</td><td>307Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Емильянова</td><td>307Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Дмитриева</td><td>308А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Поткина</td><td>308А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Вьюненко</td><td>308А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Токмашова</td><td>308Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Савченко</td><td>308Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Соловьева</td><td>308Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Адыкаева</td><td>308Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Пушкина</td><td>309А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Сергеевна</td><td>309А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Романова !!!</td><td>309Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Магомодова !!!</td><td>309Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Акулова !!!</td><td>309Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Афанасьева</td><td>309Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Медведева</td><td>310А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Карасова</td><td>310А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Черепанова</td><td>310Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Кондыкова</td><td>310Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Якимченко</td><td>310Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Шадрина</td><td>310Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Акчинов</td><td>311А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Яилгаков</td><td>311А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Чигжит</td><td>311Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Очуртов !!!</td><td>311Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Кангинов</td><td>311Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Юнхунов Э !</td><td>311Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Арбаев</td><td>312А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Юнхунов И</td><td>312А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Кебеков</td><td>312Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Енчинов</td><td>312Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Чучин</td><td>312Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Иркитов</td><td>312Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Крачнакова</td><td>313А1</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Новикова</td><td>313А2</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Анчина</td><td>313Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Кыдатова</td><td>313Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Казакова</td><td>313Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Делтокова</td><td>313Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Федоров</td><td>314А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Субботин</td><td>314А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Сафронов</td><td>314А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Яжанкин</td><td>314Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Тадышев</td><td>314Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Белеков</td><td>314Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Решетов</td><td>314Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Майманов</td><td>315А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Уйгулуков</td><td>315А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Иргит</td><td>315А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Сегерткышев</td><td>315Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Чирков</td><td>315Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Лобанов</td><td>315Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Топтыгин</td><td>318А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Левин</td><td>318А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Пан</td><td>318А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Миркулеев</td><td>318Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Вахидов</td><td>318Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Кузьмин</td><td>318Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Мирханов</td><td>318Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Жукова</td><td>320А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Семендеева</td><td>320А</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Шустинская</td><td>320Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Рожкова</td><td>320Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Козлова</td><td>320Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Сотникова</td><td>320Б</td><td>3</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Канысова</td><td>513А1</td><td>5</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Малчинова</td><td>513А1</td><td>5</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Бочкарева</td><td>513А2</td><td>5</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Глушкова</td><td>513А2</td><td>5</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Бологова</td><td>513Б</td><td>5</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
+<tr><td>Кураганова</td><td>513Б</td><td>5</td><td>Не указана</td><td>+7...</td><td>Проживает</td></tr>
                             </tbody>
                         </table>
                     `
@@ -356,16 +495,35 @@
             return reports[type] || {summary: 'Отчет не найден', table: ''};
         }
 
-        // Экспорт отчета
+        // Экспорт отчета в Excel или PDF
         function exportReport(format) {
-            alert(`Отчет экспортирован в формате ${format.toUpperCase()}!\n\nВ реальной системе здесь будет скачивание файла.`);
-            
+            const table = document.querySelector('#reportTable table');
+            if (!table) {
+                alert('Нет данных для экспорта!');
+                return;
+            }
+
             if (format === 'excel') {
-                // Здесь будет генерация Excel
-                console.log('Генерация Excel файла...');
+                // Преобразуем таблицу в Excel-файл
+                const wb = XLSX.utils.table_to_book(table, {sheet: "Отчет"});
+                XLSX.writeFile(wb, "report.xlsx");
             } else if (format === 'pdf') {
-                // Здесь будет генерация PDF
-                console.log('Генерация PDF файла...');
+                // Преобразуем таблицу в PDF-файл
+                const doc = new jspdf.jsPDF();
+                doc.setFont("Arial", "normal");
+                doc.text(document.getElementById('reportTitle').textContent, 14, 14);
+
+                const summary = document.getElementById('reportSummary').innerText;
+                doc.setFontSize(10);
+                doc.text(summary, 14, 24);
+
+                doc.autoTable({
+                    html: table,
+                    startY: 32,
+                    styles: { font: "Arial", fontSize: 9 }
+                });
+
+                doc.save("report.pdf");
             }
         }
 
